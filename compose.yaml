@@ -1,0 +1,36 @@
+﻿services:
+
+  dsh:
+    image: ${DSH_IMAGE}
+    container_name: deepseek-harness
+
+    environment:
+      DSH_HOME: /home/node/.dsh
+
+    working_dir: /workspace
+
+    volumes:
+      - "../dsh-home:/home/node/.dsh"
+      - "../workspace:/workspace"
+
+    ports:
+      - "127.0.0.1:3080:8080"
+
+    restart: unless-stopped
+
+    pull_policy: always
+
+
+  proxy:
+    image: caddy:2-alpine
+    container_name: deepseek-harness-proxy
+
+    network_mode: "service:dsh"
+
+    depends_on:
+      - dsh
+
+    volumes:
+      - "./Caddyfile:/etc/caddy/Caddyfile:ro"
+
+    restart: unless-stopped
